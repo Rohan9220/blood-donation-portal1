@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Donation Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: #0a0e27;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: linear-gradient(45deg, #0a0e27, #1a1f3a);
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(220, 38, 38, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+            animation: bgMove 20s ease-in-out infinite;
+        }
+
+        @keyframes bgMove {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(-5%, 5%) rotate(120deg); }
+            66% { transform: translate(5%, -5%) rotate(240deg); }
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header with glass effect */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 1s;
+        }
+
+        .header-content {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-content::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        header h1 {
+            font-size: 3.5em;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f, #ff8787);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            position: relative;
+            font-weight: 800;
+            text-shadow: 0 0 30px rgba(220, 38, 38, 0.5);
+        }
+
+        .header-icon {
+            font-size: 4em;
+            display: inline-block;
+            animation: pulse 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(220, 38, 38, 0.6));
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        header p {
+            font-size: 1.3em;
+            color: rgba(255, 255, 255, 0.8);
+            position: relative;
+        }
+
+        /* Stats with neon glow */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInUp 0.8s;
+            cursor: pointer;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b6b, #ee5a6f, #4facfe);
+            transform: scaleX(0);
+            transition: transform 0.5s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(79, 172, 254, 0.3);
+            border-color: rgba(79, 172, 254, 0.4);
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-number {
+            font-size: 3.5em;
+            font-weight: 900;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(79, 172, 254, 0.5);
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Main grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        /* Glass cards */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInUp 1s;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .card h2 {
+            color: #fff;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            font-weight: 700;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .card h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4facfe);
+            border-radius: 2px;
+        }
+
+        /* Form styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            font-size: 15px;
+            color: #fff;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #4facfe;
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+        }
+
+        select option {
+            background: #1a1f3a;
+            color: #fff;
+        }
+
+        /* Buttons with gradient and glow */
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            width: 100%;
+        }
+
+        .clear-btn:hover {
+            box-shadow: 0 10px 40px rgba(255, 107, 107, 0.6);
+        }
+
+        /* List items with modern design */
+        .scroll-container {
+            max-height: 420px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .scroll-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scroll-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .scroll-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+
+        .list-item {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 20px;
+            margin-bottom: 12px;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+            animation: slideIn 0.4s;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .list-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .list-item:hover::before {
+            opacity: 1;
+        }
+
+        .list-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .list-item strong {
+            color: #4facfe;
+            font-size: 1.1em;
+        }
+
+        .urgency-high {
+            border-left-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .urgency-medium {
+            border-left-color: #ffd93d;
+            background: rgba(255, 217, 61, 0.1);
+        }
+
+        .urgency-low {
+            border-left-color: #6bcf7f;
+            background: rgba(107, 207, 127, 0.1);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 700;
+            margin-left: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .badge-high {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .badge-medium {
+            background: linear-gradient(135deg, #ffd93d, #f4c430);
+            color: #1a1f3a;
+            box-shadow: 0 4px 15px rgba(255, 217, 61, 0.4);
+        }
+
+        .badge-low {
+            background: linear-gradient(135deg, #6bcf7f, #5ab56e);
+            color: white;
+            box-shadow: 0 4px 15px rgba(107, 207, 127, 0.4);
+        }
+
+        .blood-group {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            padding: 50px 20px;
+            font-style: italic;
+            font-size: 1.1em;
+        }
+
+        .empty-state::before {
+            content: '📋';
+            display: block;
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+        /* Notification with modern design */
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            padding: 20px 30px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            animation: slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 5px solid;
+            font-weight: 600;
+            min-width: 250px;
+        }
+
+        .notification.success {
+            border-left-color: #6bcf7f;
+            color: #1a1f3a;
+        }
+
+        .notification.error {
+            border-left-color: #ff6b6b;
+            color: #1a1f3a;
+        }
+
+        .notification.info {
+            border-left-color: #4facfe;
+            color: #1a1f3a;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            header h1 {
+                font-size: 2.2em;
+            }
+            .header-icon {
+                font-size: 3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="header-icon">🩸</div>
+                <h1>Blood Donation Portal</h1>
+                <p>Connecting Life Savers with Those in Need</p>
+            </div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card" onclick="scrollToSection('availableDonors')">
+                <div class="stat-number" id="totalDonors">0</div>
+                <div class="stat-label">Available Donors</div>
+            </div>
+            <div class="stat-card" onclick="scrollToSection('waitingList')">
+                <div class="stat-number" id="totalWaiting">0</div>
+                <div class="stat-label">Waiting Patients</div>
+            </div>
+            <div class="stat-card" onclick="scrollToSection('matchLog')">
+                <div class="stat-number" id="totalMatches">0</div>
+                <div class="stat-label">Lives Saved</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Register Donor Card -->
+            <div class="card">
+                <h2>Register Donor</h2>
+                <form id="donorForm">
+                    <div class="form-group">
+                        <label>Donor ID</label>
+                        <input type="text" id="donorId" required placeholder="Enter unique ID">
+                    </div>
+                    <div class="form-group">
+                        <label>Donor Name</label>
+                        <input type="text" id="donorName" required placeholder="Full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Blood Group</label>
+                        <select id="donorBlood" required>
+                            <option value="">Select Blood Group</option>
+                            <option value="O-">O-</option>
+                            <option value="O+">O+</option>
+                            <option value="A-">A-</option>
+                            <option value="A+">A+</option>
+                            <option value="B-">B-</option>
+                            <option value="B+">B+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="AB+">AB+</option>
+                        </select>
+                    </div>
+                    <button type="submit">Register Donor</button>
+                </form>
+            </div>
+
+            <!-- Add Patient Card -->
+            <div class="card">
+                <h2>Add Patient Request</h2>
+                <form id="patientForm">
+                    <div class="form-group">
+                        <label>Patient ID</label>
+                        <input type="text" id="patientId" required placeholder="Enter unique ID">
+                    </div>
+                    <div class="form-group">
+                        <label>Patient Name</label>
+                        <input type="text" id="patientName" required placeholder="Full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Required Blood Group</label>
+                        <select id="patientBlood" required>
+                            <option value="">Select Blood Group</option>
+                            <option value="O-">O-</option>
+                            <option value="O+">O+</option>
+                            <option value="A-">A-</option>
+                            <option value="A+">A+</option>
+                            <option value="B-">B-</option>
+                            <option value="B+">B+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="AB+">AB+</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Urgency Level</label>
+                        <select id="patientUrgency" required>
+                            <option value="">Select Urgency</option>
+                            <option value="3">HIGH - Critical</option>
+                            <option value="2">MEDIUM - Urgent</option>
+                            <option value="1">LOW - Scheduled</option>
+                        </select>
+                    </div>
+                    <button type="submit">Add Patient</button>
+                </form>
+            </div>
+
+            <!-- Available Donors Card -->
+            <div class="card">
+                <h2>Available Donors</h2>
+                <div class="scroll-container" id="availableDonors">
+                    <div class="empty-state">No donors registered yet</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Waiting List Card -->
+            <div class="card">
+                <h2>Waiting List</h2>
+                <div class="scroll-container" id="waitingList">
+                    <div class="empty-state">No patients waiting</div>
+                </div>
+            </div>
+
+            <!-- Match Log Card -->
+            <div class="card">
+                <h2>Match History</h2>
+                <button class="clear-btn" onclick="clearAllData()" style="margin-bottom: 20px;">Clear All Data</button>
+                <div class="scroll-container" id="matchLog">
+                    <div class="empty-state">No matches yet</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Blood compatibility table
+        const BLOOD_GROUPS = ["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"];
+        const COMPATIBILITY = {
+            "O-": ["O-"],
+            "O+": ["O+", "O-"],
+            "A-": ["A-", "O-"],
+            "A+": ["A+", "A-", "O+", "O-"],
+            "B-": ["B-", "O-"],
+            "B+": ["B+", "B-", "O+", "O-"],
+            "AB-": ["AB-", "A-", "B-", "O-"],
+            "AB+": ["AB+", "AB-", "A+", "A-", "B+", "B-", "O+", "O-"]
+        };
+
+        let availableDonors = {};
+        let waitingList = [];
+        let matchLog = [];
+
+        BLOOD_GROUPS.forEach(bg => availableDonors[bg] = []);
+
+        // Smooth scroll to section
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Add a highlight effect
+                const card = element.closest('.card');
+                if (card) {
+                    card.style.transform = 'scale(1.02)';
+                    card.style.boxShadow = '0 20px 60px rgba(79, 172, 254, 0.5)';
+                    setTimeout(() => {
+                        card.style.transform = '';
+                        card.style.boxShadow = '';
+                    }, 1000);
+                }
+            }
+        }
+
+        async function saveData() {
+            try {
+                const data = {
+                    availableDonors: availableDonors,
+                    waitingList: waitingList,
+                    matchLog: matchLog
+                };
+                await window.storage.set('bloodPortalData', JSON.stringify(data));
+                console.log('Data saved successfully!');
+            } catch (e) {
+                console.error('Error saving data:', e);
+            }
+        }
+
+        async function loadData() {
+            try {
+                const result = await window.storage.get('bloodPortalData');
+                if (result && result.value) {
+                    const data = JSON.parse(result.value);
+                    availableDonors = data.availableDonors || {};
+                    waitingList = data.waitingList || [];
+                    matchLog = data.matchLog || [];
+                    BLOOD_GROUPS.forEach(bg => {
+                        if (!availableDonors[bg]) availableDonors[bg] = [];
+                    });
+                    showNotification('✅ Previous data restored!', 'info');
+                    return true;
+                }
+            } catch (e) {
+                console.log('No previous data found - starting fresh');
+            }
+            BLOOD_GROUPS.forEach(bg => availableDonors[bg] = []);
+            return false;
+        }
+
+        async function clearAllData() {
+            if (confirm('⚠️ Clear all data? This cannot be undone!')) {
+                BLOOD_GROUPS.forEach(bg => availableDonors[bg] = []);
+                waitingList = [];
+                matchLog = [];
+                try {
+                    await window.storage.delete('bloodPortalData');
+                } catch (e) {
+                    console.error('Error clearing data:', e);
+                }
+                updateStats();
+                renderDonors();
+                renderWaitingList();
+                renderMatchLog();
+                showNotification('🗑️ All data cleared!', 'info');
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notif = document.createElement('div');
+            notif.className = `notification ${type}`;
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 3000);
+        }
+
+        function updateStats() {
+            let totalDonors = 0;
+            Object.values(availableDonors).forEach(arr => totalDonors += arr.length);
+            document.getElementById('totalDonors').textContent = totalDonors;
+            document.getElementById('totalWaiting').textContent = waitingList.length;
+            document.getElementById('totalMatches').textContent = matchLog.length;
+        }
+
+        function renderDonors() {
+            const container = document.getElementById('availableDonors');
+            let html = '';
+            
+            BLOOD_GROUPS.forEach(bg => {
+                if (availableDonors[bg].length > 0) {
+                    html += `<div class="list-item">
+                        <strong><span class="blood-group">${bg}</span></strong><br>`;
+                    availableDonors[bg].forEach(d => {
+                        html += `<span style="color: rgba(255,255,255,0.8); margin-top: 8px; display: inline-block;">${d.id} - ${d.name}</span><br>`;
+                    });
+                    html += '</div>';
+                }
+            });
+
+            container.innerHTML = html || '<div class="empty-state">No donors registered yet</div>';
+        }
+
+        function renderWaitingList() {
+            const container = document.getElementById('waitingList');
+            if (waitingList.length === 0) {
+                container.innerHTML = '<div class="empty-state">No patients waiting</div>';
+                return;
+            }
+
+            let html = '';
+            waitingList.forEach(p => {
+                const urgencyClass = p.urgency === 3 ? 'high' : p.urgency === 2 ? 'medium' : 'low';
+                const urgencyText = p.urgency === 3 ? 'HIGH' : p.urgency === 2 ? 'MEDIUM' : 'LOW';
+                html += `<div class="list-item urgency-${urgencyClass}">
+                    <strong>${p.id}</strong> - <span style="color: rgba(255,255,255,0.9);">${p.name}</span><br>
+                    <span style="margin-top: 8px; display: inline-block;">Needs: <span class="blood-group">${p.need}</span>
+                    <span class="badge badge-${urgencyClass}">${urgencyText}</span></span>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderMatchLog() {
+            const container = document.getElementById('matchLog');
+            if (matchLog.length === 0) {
+                container.innerHTML = '<div class="empty-state">No matches yet</div>';
+                return;
+            }
+
+            let html = '';
+            matchLog.slice().reverse().forEach(m => {
+                html += `<div class="list-item">
+                    <strong style="color: #4facfe;">Patient:</strong> <span style="color: rgba(255,255,255,0.9);">${m.patientId} (${m.patientName})</span><br>
+                    <strong style="color: #4facfe; margin-top: 5px; display: inline-block;">Donor:</strong> <span style="color: rgba(255,255,255,0.9);">${m.donorId} (${m.donorName})</span> 
+                    <span class="blood-group">${m.donorBlood}</span>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function tryMatchPatient(patient) {
+            const compatibleGroups = COMPATIBILITY[patient.need];
+            for (let bg of compatibleGroups) {
+                if (availableDonors[bg].length > 0) {
+                    const donor = availableDonors[bg].shift();
+                    matchLog.push({
+                        patientId: patient.id,
+                        patientName: patient.name,
+                        donorId: donor.id,
+                        donorName: donor.name,
+                        donorBlood: donor.bloodGroup
+                    });
+                    showNotification(`✅ Matched: ${patient.id} ← ${donor.id}`, 'success');
+                    saveData();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function recheckWaitingList() {
+            const stillWaiting = [];
+            waitingList.forEach(patient => {
+                if (!tryMatchPatient(patient)) {
+                    stillWaiting.push(patient);
+                }
+            });
+            waitingList = stillWaiting;
+            saveData();
+        }
+
+        document.getElementById('donorForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const donorId = document.getElementById('donorId').value;
+            const donorName = document.getElementById('donorName').value;
+            const donorBlood = document.getElementById('donorBlood').value;
+
+            // Check if donor ID already exists
+            let idExists = false;
+            Object.values(availableDonors).forEach(donors => {
+                if (donors.some(d => d.id === donorId)) {
+                    idExists = true;
+                }
+            });
+
+            if (idExists) {
+                showNotification(`❌ Donor ID "${donorId}" already exists!`, 'error');
+                return;
+            }
+
+            const donor = {
+                id: donorId,
+                name: donorName,
+                bloodGroup: donorBlood
+            };
+
+            availableDonors[donor.bloodGroup].push(donor);
+            showNotification(`🩸 Donor ${donor.id} registered!`, 'success');
+            
+            saveData();
+            recheckWaitingList();
+            updateStats();
+            renderDonors();
+            renderWaitingList();
+            renderMatchLog();
+            
+            e.target.reset();
+        });
+
+        document.getElementById('patientForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const patientId = document.getElementById('patientId').value;
+            const patientName = document.getElementById('patientName').value;
+            const patientBlood = document.getElementById('patientBlood').value;
+            const patientUrgency = parseInt(document.getElementById('patientUrgency').value);
+
+            // Check if patient ID already exists in waiting list or match log
+            const idInWaiting = waitingList.some(p => p.id === patientId);
+            const idInMatches = matchLog.some(m => m.patientId === patientId);
+
+            if (idInWaiting || idInMatches) {
+                showNotification(`❌ Patient ID "${patientId}" already exists!`, 'error');
+                return;
+            }
+
+            const patient = {
+                id: patientId,
+                name: patientName,
+                need: patientBlood,
+                urgency: patientUrgency,
+                timestamp: Date.now()
+            };
+
+            if (!tryMatchPatient(patient)) {
+                waitingList.push(patient);
+                waitingList.sort((a, b) => b.urgency - a.urgency);
+                showNotification(`⏳ ${patient.id} added to waiting list`, 'error');
+            }
+
+            saveData();
+            updateStats();
+            renderDonors();
+            renderWaitingList();
+            renderMatchLog();
+            
+            e.target.reset();
+        });
+
+        window.addEventListener('load', async () => {
+            await loadData();
+            updateStats();
+            renderDonors();
+            renderWaitingList();
+            renderMatchLog();
+        });
+
+        updateStats();
+    </script>
+</body>
+</html>
